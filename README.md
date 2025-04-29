@@ -1,30 +1,30 @@
-💰 Smart Ledger Project (Backend)
+# 💰 Smart Ledger Project (Backend)
 
 스마트 가계부 프로젝트의 Node.js 기반 백엔드 서버입니다.  
 회원가입, 로그인, 소비내역 관리, 월별 목표 금액 설정 및 OCR 기반 영수증 등록 기능을 제공합니다.
 
 ---
 
-🚀 주요 기능
+## 🚀 주요 기능
 
-✅ 사용자 인증
+### ✅ 사용자 인증
 - 회원가입 (`POST /api/auth/register`)
 - 로그인 및 JWT 발급 (`POST /api/auth/login`)
 - 인증된 사용자만 접근 가능한 보호 라우터 구성
 
-✅ 월별 목표 금액 설정
+### ✅ 월별 목표 금액 설정
 - 목표 금액 등록 (`POST /api/goal`)
 - 전체 조회 (`GET /api/goal`)
 - 목표 수정 (`PUT /api/goal/:id`)
 - 목표 삭제 (`DELETE /api/goal/:id`)
 
-✅ 소비내역 및 OCR (구현 예정 또는 확장 가능)
+### ✅ 소비내역 및 OCR (구현 예정 또는 확장 가능)
 - 영수증 이미지 업로드 및 OCR 텍스트 추출 (`POST /api/ocr`)  
   → OCR 결과를 바탕으로 소비내역 자동 분류 가능성 확보
 
 ---
 
-⚙ 기술 스택
+## ⚙ 기술 스택
 
 - **Node.js / Express.js**
 - **MariaDB** (MySQL 호환)
@@ -35,7 +35,9 @@
 
 ---
 
-📂 프로젝트 구조
+## 📂 프로젝트 구조
+
+
 
 
 smart-ledger-project/
