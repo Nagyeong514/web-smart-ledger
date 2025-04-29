@@ -39,8 +39,8 @@
 
 
 
-
-smart-ledger-project/ ├── server.js # 서버 실행 파일 ├── config/ │ └── db.js # DB 연결 설정 ├── models/ │ └── User.js # 사용자 모델 │ └── Goal.js # 월별 목표 모델 ├── routes/ │ └── auth.js # 회원가입/로그인 라우터 │ └── goal.js # 목표 금액 라우터 │ └── ocr.js # OCR 라우터 ├── middlewares/ │ └── authMiddleware.js # JWT 인증 미들웨어
+smart-ledger-project/ ├── server.js # 서버 진입점 ├── .env # 환경변수 설정 파일 ├── config/ │ └── db.js # MariaDB 연결 설정 │ ├── models/ # DB 테이블과 매핑되는 모델 정의 │ ├── User.js # 사용자 모델 │ ├── Goal.js # 월별 목표 모델 (monthly_goal_amount) │ └── ... # 향후 모델 확장 가능 │ ├── routes/ # API 라우터 정의 │ ├── auth.js # 회원가입/로그인 API │ ├── goal.js # 목표 금액 API │ └── ocr.js # OCR 처리 API │ ├── middlewares/
+│ └── authMiddleware.js # JWT 인증 미들웨어 │ └── uploads/ # 영수증 이미지 저장 디렉토리 (OCR용)
 
 
 
