@@ -1,111 +1,128 @@
 # 💰 Smart Ledger Project (Backend)
 
-스마트 가계부 프로젝트의 Node.js 기반 백엔드 서버입니다.  
-회원가입, 로그인, 소비내역 관리, 월별 목표 금액 설정 및 OCR 기반 영수증 등록 기능을 제공합니다.
+스마트 가계부 프로젝트의 Node.js 기반 백엔드 서버입니다.
+회원가입, 로그인, 소비내역 관리, 월별 목표 금액 설정 및
+OCR 기반 영수즘 등록 기능과 GPT 기반 소비내역 자동 분류 기능을 제공합니다.
 
 ---
 
 ## 🚀 주요 기능
 
 ### ✅ 사용자 인증
-- 회원가입 (`POST /api/auth/register`)
-- 로그인 및 JWT 발급 (`POST /api/auth/login`)
-- 인증된 사용자만 접근 가능한 보호 라우터 구성
+
+* 회원가입: `POST /api/auth/register`
+* 로그인 및 JWT 발급: `POST /api/auth/login`
+* 보호 라우터: JWT 토큰 기반 인증 적용
 
 ### ✅ 월별 목표 금액 설정
-- 목표 금액 등록 (`POST /api/goal`)
-- 전체 조회 (`GET /api/goal`)
-- 목표 수정 (`PUT /api/goal/:id`)
-- 목표 삭제 (`DELETE /api/goal/:id`)
 
-### ✅ 소비내역 및 OCR (구현 예정 또는 확장 가능)
-- 영수증 이미지 업로드 및 OCR 텍스트 추출 (`POST /api/ocr`)  
-  → OCR 결과를 바탕으로 소비내역 자동 분류 가능성 확보
+* 목표 등록: `POST /api/goal`
+* 목표 조회: `GET /api/goal`
+* 목표 수정: `PUT /api/goal/:id`
+* 목표 삭제: `DELETE /api/goal/:id`
+
+### ✅ OCR 및 소비내역 자동 분류 (GPT 연동)
+
+* 영수즘 이미지 업로드 및 OCR 텍스트 추출: `POST /api/ocr`
+* GPT API로 텍스트 배열 → 소비내역 자동 분류
+  예: **가망점명 / 금액 / 날짜 / 카테고리** 추출 및 저장
 
 ---
 
 ## ⚙ 기술 스택
 
-- **Node.js / Express.js**
-- **MariaDB** (MySQL 호환)
-- **bcrypt** (비밀번호 해시)
-- **jsonwebtoken (JWT)** (로그인 인증)
-- **multer** (파일 업로드)
-- **dotenv / cors / mysql2**
+* Node.js / Express.js
+* MariaDB (MySQL 호환)
+* bcrypt (비밀번호 해시)
+* jsonwebtoken (JWT 인증)
+* multer (파일 업로드)
+* dotenv / cors / mysql2
+* **OpenAI GPT API** (영수즘 내용 분류)
 
 ---
 
 ## 📂 프로젝트 구조
 
-
-## 프로젝트 구조
-
 ```
 smart-ledger-project/
-├── server.js               서버 진입점
-├── .env                    환경변수 설정 파일
+├── server.js                 서버 진입점
+├── .env                     환경변수 (Git에 포함 ❌)
+├── .env.example             환경변수 예시 (Git에 포함 ✅)
 ├── config/
-│   └── db.js               MariaDB 연결 설정
-│
-├── models/                 DB 테이블과 매핑되는 모델 정의
-│   ├── User.js             사용자 모델
-│   ├── Goal.js             월별 목표 모델 (monthly_goal_amount)
-│   └── ...                 향후 모델 확장 가능
-│
-├── routes/                 API 라우터 정의
-│   ├── auth.js             회원가입/로그인 API
-│   ├── goal.js             목표 금액 API
-│   └── ocr.js              OCR 처리 API
-│
+│   └── db.js                MariaDB 연결 설정
+├── controllers/             비즈니스 로직
 ├── middlewares/
-│   └── authMiddleware.js   JWT 인증 미들웨어
-│
-└── uploads/                영수증 이미지 저장 디렉토리 (OCR용)
+│   └── authMiddleware.js    JWT 인증 처리
+├── models/                  DB 모델 정의
+│   ├── User.js
+│   ├── Goal.js
+│   └── ...
+├── routes/                  API 라우터
+│   ├── auth.js
+│   ├── goal.js
+│   └── ocr.js
+├── services/                GPT 서비스 등 외부 API 연동
+├── test/                    API 테스트용 코드
+├── uploads/                 영수즘 이미지 저장
+└── ...
 ```
-
-
 
 ---
 
 ## 🔐 인증 방식
 
-- JWT 발급 후 모든 보호 라우터 요청 시 헤더에 포함
-
-
-
+* 로그인 성공 시 JWT 토큰 발급
+* 이후 모든 보호 API 요청 시 Authorization 헤더에 토큰 포함
 
 ---
 
-## 🗂 DB 테이블 요약 (smart_ledger)
+## 📂 DB 테이블 요약 (smart\_ledger)
 
-| 테이블명 | 설명 |
-|----------|------|
-| `users` | 사용자 정보 |
-| `expenses` | 소비 내역 |
-| `monthly_goal_amount` | 월별 목표 금액 |
-| `receipts` |  영수증 사진(갤러리..?) |
-
----
-
-## 🧪 Postman 테스트 흐름
-
-1. `/api/auth/register` → 회원가입  
-2. `/api/auth/login` → 토큰 발급  
-3. `/api/goal` → 토큰 포함하여 CRUD 테스트
+| 테이블명                  | 설명           |
+| --------------------- | ------------ |
+| users                 | 사용자 기본 정보    |
+| expenses              | 소비 내역        |
+| monthly\_goal\_amount | 월별 목표 금액     |
+| receipts              | 영수즘 이미지 경로 등 |
 
 ---
 
-## 📌 향후 확장 예정
+## 🧪 Postman 테스트 환승
 
-- 소비 카테고리 자동 분류 (GPT 활용)
-- 월별/연도별 달성률 분석 (미정)
-- OCR 기반 소비내역 자동 등록 (미정)
-- 예산 초과 알림 기능 (미정)
+1. `/api/auth/register` → 회원가입
+2. `/api/auth/login` → 토큰 발급
+3. `/api/goal` → 토큰 포함하여 CRUD 요청
+4. `/api/ocr` → 이미지 업로드 및 자동 분류 테스트
 
+---
 
+## 📌 효피 확장 예정 기능
 
+* [ ] GPT 기반 소비 카테고리 자동 분류 고도화
+* [ ] 월별/연도별 지출 분석 및 달성률 시각화
+* [ ] OCR 기반 소비내역 자동 등록
+* [ ] 목표 예산 초견 시 알림 기능
 
+---
 
+## 📂 환경 설정
 
+`.env` 파일은 Git에 포함되지 않습니다.
+다음 `.env.example` 파일 참고해서 직접 설정해야 합니다.
 
+```
+PORT=5000
+DB_HOST=localhost
+DB_USER=your_user
+DB_PASSWORD=your_password
+DB_DATABASE=smart_ledger
+DB_PORT=3307
+JWT_SECRET=your_jwt_secret
+OPENAI_API_KEY=your_openai_api_key
+```
+
+---
+
+## 🙋‍️ 작성자
+@Nagyeong514
 
