@@ -1,4 +1,5 @@
 // JWT 인증 미들웨어
+//  /server/middlewares/authMiddleware.js
 
 const jwt = require('jsonwebtoken');
 
