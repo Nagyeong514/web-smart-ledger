@@ -123,6 +123,19 @@ OPENAI_API_KEY=your_openai_api_key
 
 ---
 
+## 📌 프론트엔드 모듈
+
+npm install react-router-dom
+npm install date-fns
+npm install react-day-picker
+npm install react-bootstrap bootstrap
+npm install axios
+npm install react-icons
+npm install react-chartjs-2 chart.js
+npm install react-day-picker@8.0.0 --legacy-peer-deps
+npm install react@18 react-dom@18
+
+
 ## 🙋‍️ 작성자
 @Nagyeong514
 
