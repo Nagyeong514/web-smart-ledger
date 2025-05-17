@@ -23,7 +23,6 @@
 ### 안나경
 - **AI의 한마디 대신 AI 챗봇 구현 예정**
 - 월요일 저녁부터 개발 착수
-- 발표 전까지 완성 및 PPT 수정 담당
 
 ---
 
@@ -61,14 +60,7 @@ OPENAI_API_KEY=복잡한_문자열
 
 - 2️⃣ npm install react@18 react-dom@18
 
-- 
 ---
 
-📌 다음 단계:
-`README.md` 파일을 `/c/smart-ledger-project/` 경로에서 생성 후 위 내용을 붙여넣고 저장하세요.  
-명령어는 다음과 같습니다:
 
-```bash
-touch README.md
-nano README.md
 
