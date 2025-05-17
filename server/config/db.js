@@ -1,5 +1,5 @@
 // MariaDB 연결 설정
-// db.js
+// config/db.js
 
 const mysql = require('mysql2/promise');
 const dotenv = require('dotenv');

@@ -1,49 +1,164 @@
-// 로그인한 사용자가 올린 소비내역(카테고리, 금액, 가게, 상품명, 날짜)을 DB에 안전하게 저장하는 모델 파일
+// /server/models/Expense.js
 
-const db = require('../config/db'); // DB 연결 파일 불러오기
+const pool = require('../config/db');
 
 const Expense = {
-    /**
-     * 소비내역 저장 함수 (OCR 기반 소비내역도 처리 가능)
-     * @param {number} userId - 사용자 ID
-     * @param {number|null} receiptId - 연결된 영수증 ID (없으면 null)
-     * @param {string} category - 소비 카테고리 (예: 음식, 교통)
-     * @param {number} amount - 소비 금액
-     * @param {string} storeName - 가게 이름 (선택)
-     * @param {string} productName - 상품 이름 (선택)
-     * @param {string} purchaseDate - 소비 날짜 (형식: 'YYYY-MM-DD')
-     */
-    create: async (userId, receiptId, category, amount, storeName, productName, purchaseDate) => {
-        const sql = `
-            INSERT INTO expenses (user_id, receipt_id, category, amount, store_name, product_name, purchase_date)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        `;
-        const [result] = await db.execute(sql, [
-            userId,
-            receiptId, // OCR을 통해 연결된 receipts.id (또는 null)
-            category,
-            amount,
-            storeName,
-            productName,
-            purchaseDate,
-        ]);
+    async create(user_id, receipt_id, category, amount, store_name, product_name, purchase_date) {
+        const [result] = await pool.query(
+            `INSERT INTO expenses (user_id, receipt_id, category, amount, store_name, product_name, purchase_date)
+             VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            [user_id, receipt_id, category, amount, store_name, product_name, purchase_date]
+        );
         return result;
     },
 
-    /**
-     * 특정 사용자의 소비내역 전체 조회 함수
-     * @param {number} userId - 조회할 사용자 ID
-     */
-    getAllByUserId: async (userId) => {
+    async getAllByUserId(user_id) {
+        const [rows] = await pool.query('SELECT * FROM expenses WHERE user_id = ? ORDER BY purchase_date DESC', [
+            user_id,
+        ]);
+        return rows;
+    },
+
+    async update(id, user_id, updates) {
+        const fields = [];
+        const values = [];
+
+        for (const key in updates) {
+            fields.push(`${key} = ?`);
+            values.push(updates[key]);
+        }
+
+        values.push(user_id, id); // WHERE user_id = ? AND id = ?
+
         const sql = `
-            SELECT id, receipt_id, category, amount, store_name, product_name, purchase_date, created_at
-            FROM expenses
-            WHERE user_id = ?
-            ORDER BY purchase_date DESC, created_at DESC
+            UPDATE expenses SET ${fields.join(', ')}
+            WHERE user_id = ? AND id = ?
         `;
-        const [rows] = await db.execute(sql, [userId]);
+
+        const [result] = await pool.query(sql, values);
+        return result;
+    },
+
+    async delete(id, user_id) {
+        const [result] = await pool.query(`DELETE FROM expenses WHERE id = ? AND user_id = ?`, [id, user_id]);
+        return result;
+    },
+
+    async getByDateRange(user_id, startDate, endDate) {
+        const [rows] = await pool.query(
+            `SELECT * FROM expenses
+             WHERE user_id = ? AND DATE(purchase_date) BETWEEN ? AND ?
+             ORDER BY purchase_date ASC`,
+            [user_id, startDate, endDate]
+        );
         return rows;
     },
 };
 
 module.exports = Expense;
+
+// // const pool = require('../config/db');
+
+// // // ✅ 소비내역 저장
+// // async function create(user_id, receipt_id, category, amount, store_name, product_name, purchase_date) {
+// //     const [result] = await pool.query(
+// //         `INSERT INTO expenses (user_id, receipt_id, category, amount, store_name, product_name, purchase_date)
+// //          VALUES (?, ?, ?, ?, ?, ?, ?)`,
+// //         [user_id, receipt_id, category, amount, store_name, product_name, purchase_date]
+// //     );
+// //     return result;
+// // }
+
+// // // ✅ 전체 소비내역 조회 (user_id 기준)
+// // async function getAllByUserId(user_id) {
+// //     const [rows] = await pool.query(`SELECT * FROM expenses WHERE user_id = ? ORDER BY purchase_date DESC`, [user_id]);
+// //     return rows;
+// // }
+
+// // module.exports = {
+// //     create,
+// //     getAllByUserId,
+// // };
+
+// const express = require('express');
+// const router = express.Router();
+// const verifyToken = require('../middlewares/authMiddleware');
+// const Expense = require('../models/Expense');
+// // /server/models/Expense.js
+
+// const pool = require('../config/db');
+
+// const Expense = {
+//     async getAllByUserId(userId) {
+//         const [rows] = await pool.query('SELECT * FROM expenses WHERE user_id = ? ORDER BY purchase_date DESC', [
+//             userId,
+//         ]);
+//         return rows;
+//     },
+// };
+
+// module.exports = Expense;
+
+// // 소비내역 저장 API
+// router.post('/', verifyToken, async (req, res) => {
+//     try {
+//         let { store, amount, date, category, receipt_id } = req.body;
+//         const user_id = req.user.userId;
+
+//         // ✅ 1. 로그: 원본 입력값 확인
+//         console.log('🧾 원본 파라미터:', { store, amount, date, category });
+
+//         // ✅ 2. 금액 전처리 (예: "5,000원" → 5000)
+//         if (typeof amount === 'string') {
+//             const parsedAmount = parseInt(amount.replace(/[^\d]/g, ''), 10);
+//             amount = isNaN(parsedAmount) ? null : parsedAmount;
+//         }
+
+//         // ✅ 3. 날짜 전처리 (예: "2024-08-21" → "2024-08-21 00:00:00")
+//         if (typeof date === 'string') {
+//             const parsedDate = new Date(date);
+//             date = isNaN(parsedDate.getTime()) ? null : parsedDate.toISOString().slice(0, 19).replace('T', ' ');
+//         }
+
+//         // ✅ 4. 필수 필드 확인
+//         if (!store || !amount || !category || !date) {
+//             console.error('❌ 필수 필드 누락 또는 전처리 실패:', {
+//                 store,
+//                 amount,
+//                 date,
+//                 category,
+//             });
+//             return res.status(400).json({ message: '필수 항목 누락 또는 형식 오류' });
+//         }
+
+//         // ✅ 5. 최종 저장 파라미터 로그
+//         console.log('🚨 저장 전 파라미터:', {
+//             user_id,
+//             receipt_id: receipt_id || null,
+//             category,
+//             amount,
+//             store_name: store,
+//             product_name: null,
+//             purchase_date: date,
+//         });
+
+//         // ✅ 6. DB 저장 (정확한 순서로 인자 전달)
+//         const newExpense = await Expense.create(
+//             user_id,
+//             receipt_id || null,
+//             category,
+//             amount,
+//             store,
+//             null, // product_name은 아직 없음
+//             date
+//         );
+
+//         console.log('✅ 저장 성공:', newExpense);
+//         res.status(201).json(newExpense);
+//     } catch (error) {
+//         console.error('❌ 소비내역 저장 오류:', error);
+//         res.status(500).json({ message: '소비내역 저장 실패' });
+//     }
+// });
+
+// module.exports = router;

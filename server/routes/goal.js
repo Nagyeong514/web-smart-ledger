@@ -4,79 +4,52 @@ const router = express.Router();
 const verifyToken = require('../middlewares/authMiddleware');
 const Goal = require('../models/Goal');
 
-/** 월별 목표금액 생성 */
+/** ✅ 목표금액 저장 (존재 시 업데이트, 없으면 생성) */
 router.post('/', verifyToken, async (req, res) => {
     try {
-        const { targetAmount, goalYear, goalMonth } = req.body;
-        if (!targetAmount || !goalYear || !goalMonth) {
-            return res.status(400).json({ message: '목표금액, 연도, 월이 필요합니다.' });
-        }
         const userId = req.user.userId;
-        await Goal.create(userId, targetAmount, goalYear, goalMonth);
-        res.status(201).json({ message: '월별 목표금액 설정 완료' });
+        const { yearMonth, amount } = req.body;
+
+        if (!yearMonth || !amount) {
+            return res.status(400).json({ message: 'yearMonth와 amount가 필요합니다.' });
+        }
+
+        const [year, month] = yearMonth.split('-');
+        const existing = await Goal.getByUserIdAndMonth(userId, year, month);
+
+        if (existing) {
+            await Goal.updateByUserIdAndMonth(userId, year, month, amount);
+        } else {
+            await Goal.create(userId, amount, year, month);
+        }
+
+        res.status(200).json({ message: '목표 금액 저장 또는 수정 완료' });
     } catch (err) {
-        console.error(err);
+        console.error('POST /goal 에러:', err);
         res.status(500).json({ message: '서버 오류' });
     }
 });
 
-/** 월별 목표금액 전체 조회 */
+/** ✅ 해당 월 목표금액 조회 */
 router.get('/', verifyToken, async (req, res) => {
     try {
         const userId = req.user.userId;
-        const goals = await Goal.getAllByUserId(userId);
-        res.status(200).json(goals);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: '서버 오류' });
-    }
-});
+        const { yearMonth } = req.query;
 
-/** 특정 월별 목표금액 조회 */
-router.get('/:id', verifyToken, async (req, res) => {
-    try {
-        const userId = req.user.userId;
-        const goal = await Goal.getById(req.params.id, userId);
-        if (!goal) {
-            return res.status(404).json({ message: '해당 목표금액을 찾을 수 없습니다.' });
+        if (!yearMonth) {
+            return res.status(400).json({ message: 'yearMonth 쿼리 파라미터가 필요합니다.' });
         }
-        res.status(200).json(goal);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: '서버 오류' });
-    }
-});
 
-/** 월별 목표금액 수정 */
-router.put('/:id', verifyToken, async (req, res) => {
-    try {
-        const { targetAmount, goalYear, goalMonth } = req.body;
-        if (!targetAmount || !goalYear || !goalMonth) {
-            return res.status(400).json({ message: '목표금액, 연도, 월이 필요합니다.' });
-        }
-        const userId = req.user.userId;
-        const result = await Goal.update(req.params.id, userId, targetAmount, goalYear, goalMonth);
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ message: '수정할 목표금액을 찾을 수 없습니다.' });
-        }
-        res.status(200).json({ message: '월별 목표금액 수정 완료' });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: '서버 오류' });
-    }
-});
+        const [year, month] = yearMonth.split('-');
+        const result = await Goal.getByUserIdAndMonth(userId, year, month);
 
-/** 월별 목표금액 삭제 */
-router.delete('/:id', verifyToken, async (req, res) => {
-    try {
-        const userId = req.user.userId;
-        const result = await Goal.delete(req.params.id, userId);
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ message: '삭제할 목표금액을 찾을 수 없습니다.' });
+        if (!result) {
+            return res.status(404).json({ message: '목표 금액이 설정되어 있지 않습니다.' });
         }
-        res.status(200).json({ message: '월별 목표금액 삭제 완료' });
+
+        res.status(200).json({ amount: result.amount });
     } catch (err) {
-        console.error(err);
+        console.error('GET /goal 에러:', err);
         res.status(500).json({ message: '서버 오류' });
     }
 });
