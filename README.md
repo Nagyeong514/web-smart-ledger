@@ -46,6 +46,12 @@
 
 ---
 
+## 🎥 시연 자료
+
+- 발표자료(시연영상 포함): [Canva 링크](https://www.canva.com/design/DAHD_vg4NfI/eeKbAY3jgVKJPgcBKylVPw/view?utm_content=DAHD_vg4NfI&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h77de8d7bef)
+  
+---
+
 ## 🏗️ 프로젝트 구조
 
 ```bash
