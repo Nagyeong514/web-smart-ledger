@@ -22,6 +22,19 @@
 
 ---
 
+## 🛠 Tech Stack
+
+| Classification | Tech Stack |
+| :--- | :--- |
+| **Frontend** | React 18, JavaScript (ES6+), Axios, React Router, Chart.js, Bootstrap |
+| **Backend** | Node.js (v18+), Express, RESTful API |
+| **Database** | MariaDB, SQL (Direct Query & Sequelize-like pattern) |
+| **AI & Media** | Google Vision OCR API, OpenAI GPT-3.5-turbo, Multer |
+| **Security** | JWT (JSON Web Token), bcrypt |
+| **DevOps & Tools** | Git, VS Code, Postman, HeidiSQL |
+
+---
+
 ## 🤖 GPT 챗봇 기능
 
 - 사용자의 소비 내역을 기반으로 GPT가 응답
