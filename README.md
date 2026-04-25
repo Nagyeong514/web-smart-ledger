@@ -172,5 +172,5 @@ npm start
 - **개발 기간:** 2025.01 – 2025.04
 - **개발 인원:** 5인 팀
 - **기술 스택:** React, Node.js, Express, MariaDB, Chart.js, GPT API, Vision API
-- **성과:** 웹 개발 교육 과정 우수상 수상
+- **성과:** 웹 개발 교육 과정 우수상 수상 [뉴스 기사 확인하기](https://www.yntnews.co.kr/bbs/board.php?bo_table=news&wr_id=11950)
 
